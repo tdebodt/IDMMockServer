@@ -1,0 +1,3 @@
+idmmock.semantical.cc {
+	reverse_proxy app:3333
+}
