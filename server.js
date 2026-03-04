@@ -1,5 +1,8 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const { generateKeyPair, exportJWK, SignJWT } = require('jose');
+const { marked } = require('marked');
 const { v4: uuidv4 } = require('uuid');
 const config = require('./config');
 
@@ -33,6 +36,41 @@ setInterval(() => {
     if (now - entry.createdAt > CODE_TTL_MS) codeStore.delete(code);
   }
 }, 60 * 1000);
+
+// --- 0. Usage guide as HTML landing page ---
+const usageHtml = (() => {
+  const md = fs.readFileSync(path.join(__dirname, 'usage.md'), 'utf8')
+    .replace(/\{\{ISSUER\}\}/g, config.issuer);
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IDM/ACM Mock Server</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; background: #f8f9fa; color: #1a1a2e; line-height: 1.6; }
+    h1, h2, h3 { color: #0f4c81; }
+    h1 { border-bottom: 2px solid #0f4c81; padding-bottom: .5rem; }
+    h2 { margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: .3rem; }
+    pre { background: #2d2d2d; color: #f8f8f2; padding: 1rem; border-radius: 6px; overflow-x: auto; }
+    code { font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: .9em; }
+    :not(pre) > code { background: #e9ecef; padding: .15em .4em; border-radius: 3px; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #ddd; padding: .5rem .75rem; text-align: left; }
+    th { background: #0f4c81; color: #fff; }
+    tr:nth-child(even) { background: #f0f2f5; }
+    ul, ol { padding-left: 1.5rem; }
+    li { margin: .3rem 0; }
+    strong { color: #333; }
+    a { color: #0f4c81; }
+  </style>
+</head>
+<body>${marked(md)}</body>
+</html>`;
+})();
+
+app.get('/', (req, res) => res.type('html').send(usageHtml));
+app.get('/index.html', (req, res) => res.type('html').send(usageHtml));
 
 // --- 1. Discovery Document ---
 app.get('/.well-known/openid-configuration', (req, res) => {

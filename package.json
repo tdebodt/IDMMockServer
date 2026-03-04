@@ -1,7 +1,7 @@
 {
   "name": "idm-mock-server",
   "version": "1.0.0",
-  "description": "Mock OIDC server mimicking ACM/IDM (Vlaams Gebruikersbeheer) for UAT testing",
+  "description": "Mock OIDC server mimicking ACM/IDM (Vlaams Gebruikersbeheer) for testing",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,6 +9,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "jose": "^5.2.0",
+    "marked": "^17.0.3",
     "uuid": "^9.0.0"
   }
 }
